@@ -1,3 +1,4 @@
+import plotly.express as px
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
@@ -28,30 +29,60 @@ merged_data = pd.merge(
 merged_data['price_difference'] = merged_data['price_maxima'] - merged_data['price_iki']
 # app
 st.title("Milk Price Comparison")
+# canddles bet nelabai veikia su tokia info
+# if merged_data.empty:
+#     st.write("No matching products found.")
+# else:
+#     for _, row in merged_data.iterrows():
+#         st.subheader(f"Comparison for: {row['name']}")
+#         st.write(f"Fat Content: {row['fat_content']}, Package Size: {row['package_size']}")
+#
+#         fig = go.Figure(
+#             data=[
+#                 go.Candlestick(
+#                     x=['Maxima', 'Iki'],
+#                     open=[row['price_maxima'], row['price_iki']],
+#                     high=[row['price_maxima'], row['price_iki']],
+#                     low=[row['price_maxima'], row['price_iki']],
+#                     close=[row['price_maxima'], row['price_iki']],
+#                 )
+#             ]
+#         )
+#
+#         fig.update_layout(
+#             title=f"Price Comparison for {row['name']}",
+#             xaxis_title="Store",
+#             yaxis_title="Price (€)"
+#         )
+#
+#         st.plotly_chart(fig)
 
-if merged_data.empty:
-    st.write("No matching products found.")
-else:
-    for _, row in merged_data.iterrows():
-        st.subheader(f"Comparison for: {row['name']}")
-        st.write(f"Fat Content: {row['fat_content']}, Package Size: {row['package_size']}")
+for _, row in merged_data.iterrows():
+    st.subheader(f"Comparison for: {row['name']}")
+    st.write(f"Fat Content: {row['fat_content']}, Package Size: {row['package_size']}")
 
-        fig = go.Figure(
-            data=[
-                go.Candlestick(
-                    x=['Maxima', 'Iki'],
-                    open=[row['price_maxima'], row['price_iki']],
-                    high=[row['price_maxima'], row['price_iki']],
-                    low=[row['price_maxima'], row['price_iki']],
-                    close=[row['price_maxima'], row['price_iki']],
-                )
-            ]
-        )
+    if row['price_maxima'] < row['price_iki']:
+        colors = ['green', 'red']
+    elif row['price_maxima'] > row['price_iki']:
+        colors = ['red', 'green']
+    else:
+        colors = ['yellow', 'yellow']
 
-        fig.update_layout(
-            title=f"Price Comparison for {row['name']}",
-            xaxis_title="Store",
-            yaxis_title="Price (€)"
-        )
+    fig = go.Figure(
+        data=[
+            go.Bar(
+                x=['Maxima', 'Iki'],
+                y=[row['price_maxima'], row['price_iki']],
+                marker_color=colors
+            )
+        ]
+    )
 
-        st.plotly_chart(fig)
+    fig.update_layout(
+        title=f"Price Comparison for {row['name']}",
+        xaxis_title="Store",
+        yaxis_title="Price (€)",
+        showlegend=False
+    )
+
+    st.plotly_chart(fig)
